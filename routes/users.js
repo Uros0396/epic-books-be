@@ -18,7 +18,7 @@ users.get("/users", async (req, res) => {
   } catch (error) {
     res.status(500).send({
       statusCode: 500,
-      message: "Something went wrong",
+      message: error.message,
     });
   }
 });
@@ -43,7 +43,7 @@ users.get("/users/:userId", async (req, res) => {
   } catch (error) {
     res.status(500).send({
       statusCode: 500,
-      message: "Something went wrong",
+      message: error.message,
     });
   }
 });
@@ -60,12 +60,44 @@ users.post("/users/create", async (req, res) => {
     gender: req.body.gender,
     address: req.body.address,
   });
+
   try {
     const user = await newUser.save();
     res.status(201).send({
       statusCode: 201,
       message: "User saved successfulluy",
       user,
+    });
+  } catch (error) {
+    res.status(500).send({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+});
+
+users.put("/users/put/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).send({
+      statusCode: 400,
+      message: "User Id Is required",
+    });
+  }
+
+  try {
+    const user = await UserModel.findByIdAndUpdate(userId);
+
+    if (!user) {
+      return res.status(404).send({
+        statusCode: 404,
+        message: "The user was not successfully modified!",
+      });
+    }
+    res.status(200).send({
+      statusCode: 200,
+      message: "User modified successfully",
     });
   } catch (error) {
     res.status(500).send({
